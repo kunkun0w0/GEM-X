@@ -1,0 +1,94 @@
+# Demo
+
+## Pipeline Overview
+
+```
+Input Video → Human Detection → 2D Keypoints (VitPose) → Features (SAM3D) → GEM Model → 3D Pose (SOMA)
+                                      ↓
+                              2D Keypoint Overlay
+```
+
+## Full 3D Pipeline (`demo_soma.py`)
+
+Run full inference on a video:
+
+```bash
+python scripts/demo/demo_soma.py \
+  --video path/to/video.mp4 \
+  --output_root outputs \
+  --ckpt inputs/pretrained/gem_soma.ckpt
+```
+
+> **Note:** The `--ckpt` argument is optional. If omitted, the script will automatically download the pretrained checkpoint from [HuggingFace](https://huggingface.co/nvidia/GEM-X).
+
+### Arguments
+
+| Argument | Default | Description |
+|---|---|---|
+| `--video` | — | Input video path (required) |
+| `--ckpt` | `null` | Pretrained checkpoint path |
+| `-s` / `--static_cam` | off | Assume static camera (disables VO) |
+| `--output_root` | `outputs/demo_soma` | Root directory for outputs |
+| `--detector_name` | `vitdet` | Human detector: `vitdet` or `sam3`. Set empty to skip. |
+| `--verbose` | off | Save debug overlays (bbox, pose) |
+| `--render_mhr` | off | Render MHR identity model |
+
+### Outputs
+
+Results are saved to `<output_root>/<video_name>/`:
+
+| File | Description |
+|---|---|
+| `0_kp2d77_overlay.mp4` | 2D keypoint overlay on input video |
+| `<video_name>_1_incam.mp4` | In-camera mesh overlay |
+| `<video_name>_2_global.mp4` | Global-coordinate render |
+| `<video_name>_3_incam_global_horiz.mp4` | Side-by-side comparison |
+| `preprocess/bbx.pt` | Detected bounding boxes |
+| `preprocess/vitpose.pt` | 2D keypoints (77 joints) |
+| `preprocess/hpe_results.pt` | Full 3D pose prediction |
+
+### Preprocessing Fallbacks
+
+- When no pre-computed `bbx.pt` exists, the demo runs human detection via ViTDet (`--detector_name vitdet`).
+- If VO modules are unavailable, the demo falls back to a static camera trajectory.
+
+## 2D Keypoint-Only Demo (`demo_2d_keypoints.py`)
+
+A lightweight demo that runs only detection and 2D keypoint extraction — no GEM model, no 3D rendering, no Hydra config.
+
+```bash
+python scripts/demo/demo_2d_keypoints.py \
+  --video path/to/video.mp4
+```
+
+### Arguments
+
+| Argument | Default | Description |
+|---|---|---|
+| `--video` | — | Input video path (required) |
+| `--output_dir` | `outputs/demo_2d_kp/<video_name>/` | Output directory |
+| `--detector_name` | `vitdet` | Human detector: `vitdet` or `sam3` |
+| `--conf_thr` | `0.5` | Confidence threshold for visualization |
+| `--save_raw` | off | Keep intermediate `.pt` files |
+
+### Output
+
+- `<video_name>_kp2d77_overlay.mp4` — 2D keypoint overlay video
+
+## Accessing Results Programmatically
+
+```python
+import torch
+
+# Load 2D keypoints
+vitpose = torch.load("outputs/demo_soma/<video>/preprocess/vitpose.pt")
+# vitpose shape: (num_frames, 77, 3) — x, y, confidence
+
+# Load bounding boxes
+bbx = torch.load("outputs/demo_soma/<video>/preprocess/bbx.pt")
+bbx_xyxy = bbx["bbx_xyxy"]  # (num_frames, 4)
+bbx_xys = bbx["bbx_xys"]    # (num_frames, 3) — center_x, center_y, scale
+
+# Load 3D prediction
+pred = torch.load("outputs/demo_soma/<video>/preprocess/hpe_results.pt")
+```

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+exclude = '''
+/(third_party|build|dist|\.egg-info)/
+'''
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+exclude = [".venv", "build", "dist", "*.egg-info", "notebooks"]
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP", "W"]
+ignore = [
+    "E501",   # line too long (handled by black)
+    "E402",   # module-import-not-at-top (common in ML code with sys.path)
+    "B905",   # zip-without-explicit-strict (Python 3.10+ pattern, not always needed)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["gem", "tools"]
