@@ -325,7 +325,7 @@ def render_incam(cfg, fps=30):
 
     mat_settings = Settings()
     lit_mat = mat_settings._materials[Settings.LIT]
-    color = torch.tensor([0.69019608, 0.39215686, 0.95686275], device=device)
+    color = torch.tensor([0.4, 0.8, 0.4], device=device)
 
     renderer = o3d.visualization.rendering.OffscreenRenderer(width, height)
     renderer.scene.set_background([0.0, 0.0, 0.0, 0.0])
@@ -410,7 +410,7 @@ def render_global_o3d(cfg, fps=30):
 
     mat_settings = Settings()
     lit_mat = mat_settings._materials[Settings.LIT]
-    color = torch.tensor([0.69019608, 0.39215686, 0.95686275], device=verts_glob.device)
+    color = torch.tensor([0.4, 0.8, 0.4], device=verts_glob.device)
     writer = _open_cv2_writer(cfg.paths.global_video, width, height, fps)
 
     renderer = o3d.visualization.rendering.OffscreenRenderer(width, height)
