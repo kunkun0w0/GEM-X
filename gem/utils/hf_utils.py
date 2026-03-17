@@ -4,18 +4,76 @@
 from pathlib import Path
 
 HF_REPO_ID = "nvidia/GEM-X"
+
+# GEM-SOMA checkpoint
 DEFAULT_CKPT_FILENAME = "gem_soma.ckpt"
 DEFAULT_CKPT_DIR = "inputs/pretrained"
 
+# ViTPose checkpoint
+VITPOSE_CKPT_FILENAME = "vitpose.pth"
+VITPOSE_CKPT_DIR = "inputs/checkpoints/vitpose"
 
-def download_checkpoint(
-    repo_id=HF_REPO_ID, filename=DEFAULT_CKPT_FILENAME, local_dir=DEFAULT_CKPT_DIR
-):
-    """Download checkpoint from HuggingFace Hub if not already cached."""
+# SAM-3D-Body checkpoint
+SAM3D_CKPT_FILENAME = "sam3d_body.ckpt"
+SAM3D_CONFIG_FILENAME = "model_config.yaml"
+SAM3D_CKPT_DIR = "inputs/checkpoints/sam-3d-body-dinov3"
+
+# MHR model
+MHR_MODEL_FILENAME = "mhr_model.pt"
+MHR_MODEL_DIR = "inputs/mhr_data"
+
+# SOMA scale data
+SOMA_SCALE_MEAN_FILENAME = "scale_mean.pth"
+SOMA_SCALE_COMPS_FILENAME = "scale_comps.pth"
+SOMA_DATA_DIR = "inputs/soma_data"
+
+
+def _download_hf_file(repo_id, filename, local_dir):
+    """Download a single file from HuggingFace Hub if not already present."""
     local_path = Path(local_dir) / filename
     if local_path.exists():
         return str(local_path)
     from huggingface_hub import hf_hub_download
 
-    path = hf_hub_download(repo_id=repo_id, filename=filename, local_dir=local_dir)
-    return path
+    return hf_hub_download(repo_id=repo_id, filename=filename, local_dir=local_dir)
+
+
+def download_checkpoint(
+    repo_id=HF_REPO_ID, filename=DEFAULT_CKPT_FILENAME, local_dir=DEFAULT_CKPT_DIR
+):
+    """Download GEM-SOMA checkpoint from HuggingFace Hub if not already cached."""
+    return _download_hf_file(repo_id, filename, local_dir)
+
+
+def download_vitpose_checkpoint(
+    repo_id=HF_REPO_ID, filename=VITPOSE_CKPT_FILENAME, local_dir=VITPOSE_CKPT_DIR
+):
+    """Download ViTPose checkpoint from HuggingFace Hub if not already cached."""
+    return _download_hf_file(repo_id, filename, local_dir)
+
+
+def download_sam3d_checkpoint(repo_id=HF_REPO_ID, local_dir=SAM3D_CKPT_DIR):
+    """Download SAM-3D-Body checkpoint and config from HuggingFace Hub.
+
+    Returns the checkpoint path. The config (model_config.yaml) is downloaded
+    alongside it so load_sam_3d_body() can find it in the same directory.
+    """
+    _download_hf_file(repo_id, SAM3D_CONFIG_FILENAME, local_dir)
+    return _download_hf_file(repo_id, SAM3D_CKPT_FILENAME, local_dir)
+
+
+def download_mhr_model(
+    repo_id=HF_REPO_ID, filename=MHR_MODEL_FILENAME, local_dir=MHR_MODEL_DIR
+):
+    """Download MHR model from HuggingFace Hub if not already cached."""
+    return _download_hf_file(repo_id, filename, local_dir)
+
+
+def download_soma_data(repo_id=HF_REPO_ID, local_dir=SOMA_DATA_DIR):
+    """Download SOMA scale data (scale_mean.pth, scale_comps.pth) from HuggingFace Hub.
+
+    Returns the directory path containing the downloaded files.
+    """
+    _download_hf_file(repo_id, SOMA_SCALE_MEAN_FILENAME, local_dir)
+    _download_hf_file(repo_id, SOMA_SCALE_COMPS_FILENAME, local_dir)
+    return local_dir

@@ -198,8 +198,11 @@ class NetworkEncoderRoPE(nn.Module):
             self.scale_params_dim = scale_params_dim
             self.scale_comps_dim = scale_comps_dim
             if self.fix_scale_comps:
-                init_scale_mean = torch.load("inputs/soma_data/scale_mean.pth")
-                init_scale_comps = torch.load("inputs/soma_data/scale_comps.pth")
+                from gem.utils.hf_utils import download_soma_data
+
+                soma_data_dir = download_soma_data()
+                init_scale_mean = torch.load(f"{soma_data_dir}/scale_mean.pth")
+                init_scale_comps = torch.load(f"{soma_data_dir}/scale_comps.pth")
                 scale_mean = torch.cat([torch.ones(1) * 0.9, init_scale_mean])
                 self.register_buffer("scale_mean", scale_mean)
                 global_scale_row = torch.zeros(scale_comps_dim, 1)

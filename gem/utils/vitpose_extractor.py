@@ -240,7 +240,9 @@ def flip_heatmap_soma77(output_flipped):
 
 class VitPoseExtractor:
     def __init__(self, device="cuda:0", pose_type="soma", tqdm_leave=True):
-        ckpt_path = "inputs/checkpoints/vitpose/Sam3D_ViTPose_huge_dp+rp.pth"
+        from gem.utils.hf_utils import download_vitpose_checkpoint
+
+        ckpt_path = download_vitpose_checkpoint()
         self.pose = _build_model_local("Dinov3_ViTPose_huge_metrosim_256x192", ckpt_path)
 
         self.pose.to(device).eval()

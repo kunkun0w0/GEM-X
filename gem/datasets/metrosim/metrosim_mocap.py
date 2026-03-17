@@ -150,8 +150,11 @@ class MetrosimMocapDataset(Dataset):
         self.debug = debug
         self.downsample_factor = downsample_factor
 
-        self.scale_comps = torch.load("inputs/soma_data/scale_comps.pth")
-        self.soma_lite = SomaLayer(data_root="inputs/soma_data", low_lod=True, device="cpu")
+        from gem.utils.hf_utils import download_soma_data
+
+        soma_data_dir = download_soma_data()
+        self.scale_comps = torch.load(f"{soma_data_dir}/scale_comps.pth")
+        self.soma_lite = SomaLayer(data_root=soma_data_dir, low_lod=True, device="cpu")
 
         self._load_dataset()
         self._get_idx2meta()

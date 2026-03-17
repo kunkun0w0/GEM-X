@@ -34,9 +34,13 @@ class SAM3DBExtractor:
         from sam_3d_body import SAM3DBodyEstimator, load_sam_3d_body  # type: ignore[reportMissingImports]
 
         if checkpoint_path is None:
-            checkpoint_path = "inputs/checkpoints/sam-3d-body-dinov3/model.ckpt"
+            from gem.utils.hf_utils import download_sam3d_checkpoint
+
+            checkpoint_path = download_sam3d_checkpoint()
         if mhr_path is None:
-            mhr_path = "inputs/mhr_data/mhr_model.pt"
+            from gem.utils.hf_utils import download_mhr_model
+
+            mhr_path = download_mhr_model()
 
         model, model_cfg = load_sam_3d_body(
             checkpoint_path,
