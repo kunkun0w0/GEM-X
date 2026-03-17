@@ -62,9 +62,7 @@ def download_sam3d_checkpoint(repo_id=HF_REPO_ID, local_dir=SAM3D_CKPT_DIR):
     return _download_hf_file(repo_id, SAM3D_CKPT_FILENAME, local_dir)
 
 
-def download_mhr_model(
-    repo_id=HF_REPO_ID, filename=MHR_MODEL_FILENAME, local_dir=MHR_MODEL_DIR
-):
+def download_mhr_model(repo_id=HF_REPO_ID, filename=MHR_MODEL_FILENAME, local_dir=MHR_MODEL_DIR):
     """Download MHR model from HuggingFace Hub if not already cached."""
     return _download_hf_file(repo_id, filename, local_dir)
 
