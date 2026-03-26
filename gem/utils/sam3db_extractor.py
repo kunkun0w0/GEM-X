@@ -135,12 +135,16 @@ class SAM3DBExtractor:
         img_ds=1.0,
         batch_size=16,
         render_mhr=False,
+        frames=None,
     ):
         del render_mhr
         from sam_3d_body.data.utils.prepare_batch import prepare_batch  # type: ignore[reportMissingImports]
         from sam_3d_body.utils import recursive_to  # type: ignore[reportMissingImports]
 
-        imgs = read_video_np(video_path, scale=img_ds)
+        if frames is not None:
+            imgs = frames
+        else:
+            imgs = read_video_np(video_path, scale=img_ds)
         bbx_xys = torch.as_tensor(bbx_xys).float().cpu().numpy()
 
         tokens = []
